@@ -1,0 +1,55 @@
+# .dockerignore - Files to exclude from Docker build
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Environment
+.env
+.venv/
+venv/
+ENV/
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Database
+*.sqlite3
+db.sqlite3
+
+# Logs
+*.log
+logs/
+debug.log
+
+# Coverage reports
+htmlcov/
+.coverage
+coverage.xml
+
+# Media files (uploaded by users)
+media/
+
+# Poetry (we use requirements.txt in Docker)
+poetry.lock
+pyproject.toml
+
+# Test files
+.pytest_cache/
+*.egg-info/
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+

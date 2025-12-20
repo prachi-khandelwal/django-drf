@@ -1,0 +1,65 @@
+# docker-compose.yml - Multi-container Django setup with Nginx
+
+services:
+  # ============================================
+  # PostgreSQL Database
+  # ============================================
+  db:
+    image: postgres:15
+    container_name: myshop-db
+    environment:
+      POSTGRES_DB: myshop
+      POSTGRES_USER: myshop_user
+      POSTGRES_PASSWORD: myshop_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  # ============================================
+  # Django Application (Gunicorn)
+  # ============================================
+  web:
+    build: .
+    container_name: myshop-web
+    command: gunicorn --bind 0.0.0.0:8000 myshop.wsgi:application
+    # No ports exposed! Nginx handles external traffic
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    environment:
+      - SECRET_KEY=your-super-secret-key-change-in-production
+      - DEBUG=True
+      - ALLOWED_HOSTS=localhost,127.0.0.1,192.168.64.2
+      # Database configuration
+      - DB_ENGINE=django.db.backends.postgresql
+      - DB_NAME=myshop
+      - DB_USER=myshop_user
+      - DB_PASSWORD=myshop_password
+      - DB_HOST=db
+      - DB_PORT=5432
+    depends_on:
+      - db
+
+  # ============================================
+  # Nginx Reverse Proxy
+  # ============================================
+  nginx:
+    image: nginx:alpine
+    container_name: myshop-nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    depends_on:
+      - web
+
+# ============================================
+# Persistent Storage (Shared Volumes)
+# ============================================
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
