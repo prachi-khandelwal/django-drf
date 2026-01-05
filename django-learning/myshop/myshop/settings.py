@@ -218,31 +218,53 @@ WSGI_APPLICATION = 'myshop.wsgi.application'
 
 # Flexible database configuration:
 # - Development: Uses SQLite by default (simple, no setup needed)
-# - Production: Uses PostgreSQL (set DB_ENGINE in .env)
+# - Production: Uses PostgreSQL (set DB_ENGINE in .env or DATABASE_URL for Railway)
 
-# Get database engine from environment (defaults to SQLite)
-DB_ENGINE = config('DB_ENGINE', default='django.db.backends.sqlite3')
+# Railway provides DATABASE_URL, parse it if available
+from urllib.parse import urlparse
 
-if DB_ENGINE == 'django.db.backends.postgresql':
-    # PostgreSQL configuration (production)
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+if DATABASE_URL:
+    # Parse DATABASE_URL (Railway format: postgresql://user:password@host:port/dbname)
+    # Handle both postgres:// and postgresql:// schemes
+    if DATABASE_URL.startswith('postgres://'):
+        DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+    parsed = urlparse(DATABASE_URL)
     DATABASES = {
         'default': {
-            'ENGINE': DB_ENGINE,
-            'NAME': config('DB_NAME', default='myshop_db'),
-            'USER': config('DB_USER', default='myshop_user'),
-            'PASSWORD': config('DB_PASSWORD', default=''),
-            'HOST': config('DB_HOST', default='localhost'),
-            'PORT': config('DB_PORT', default='5432'),
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': parsed.path[1:],  # Remove leading '/'
+            'USER': parsed.username,
+            'PASSWORD': parsed.password,
+            'HOST': parsed.hostname,
+            'PORT': parsed.port or '5432',
         }
     }
 else:
-    # SQLite configuration (development)
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+    # Fall back to individual DB_* variables or SQLite
+    DB_ENGINE = config('DB_ENGINE', default='django.db.backends.sqlite3')
+    
+    if DB_ENGINE == 'django.db.backends.postgresql':
+        # PostgreSQL configuration (production)
+        DATABASES = {
+            'default': {
+                'ENGINE': DB_ENGINE,
+                'NAME': config('DB_NAME', default='myshop_db'),
+                'USER': config('DB_USER', default='myshop_user'),
+                'PASSWORD': config('DB_PASSWORD', default=''),
+                'HOST': config('DB_HOST', default='localhost'),
+                'PORT': config('DB_PORT', default='5432'),
+            }
         }
-    }
+    else:
+        # SQLite configuration (development)
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
 
 
 # Password validation
