@@ -35,14 +35,15 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
 
 # Railway deployment: Auto-add Railway's domain and healthcheck domain
-# Railway automatically sets RAILWAY_PUBLIC_DOMAIN environment variable
+# Railway automatically sets RAILWAY_PUBLIC_DOMAIN and PORT environment variables
 import os
 RAILWAY_PUBLIC_DOMAIN = os.environ.get('RAILWAY_PUBLIC_DOMAIN')
 if RAILWAY_PUBLIC_DOMAIN:
     ALLOWED_HOSTS.append(RAILWAY_PUBLIC_DOMAIN)
 
 # Railway healthcheck uses healthcheck.railway.app
-if 'RAILWAY_PUBLIC_DOMAIN' in os.environ:
+# Detect Railway by checking for PORT or RAILWAY_ENVIRONMENT variables
+if os.environ.get('PORT') or os.environ.get('RAILWAY_ENVIRONMENT'):
     ALLOWED_HOSTS.append('healthcheck.railway.app')
 
 
