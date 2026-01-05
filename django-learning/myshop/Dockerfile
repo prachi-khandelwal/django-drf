@@ -52,21 +52,26 @@ COPY django-learning/myshop/ .
 RUN mkdir -p /app/logs
 
 # ============================================
-# Stage 8: Collect Static Files
+# Stage 8: Copy and make entrypoint script executable
+# ============================================
+# Copy entrypoint script (will be copied with project files in Stage 6, but make it executable)
+RUN chmod +x /app/entrypoint.sh || true
+
+# ============================================
+# Stage 9: Collect Static Files
 # ============================================
 RUN python manage.py collectstatic --noinput
 
 # ============================================
-# Stage 9: Expose Port
+# Stage 10: Expose Port
 # ============================================
 # Railway will set PORT dynamically, default to 8000 for local development
 EXPOSE ${PORT:-8000}
 
 # ============================================
-# Stage 10: Run with Gunicorn
+# Stage 11: Run with Entrypoint Script
 # ============================================
-# Use shell form to allow environment variable expansion
 # Railway will override this with startCommand from railway.json
 # But this works for local Docker runs too
-CMD gunicorn --bind 0.0.0.0:${PORT:-8000} myshop.wsgi:application
+CMD ["/app/entrypoint.sh"]
 

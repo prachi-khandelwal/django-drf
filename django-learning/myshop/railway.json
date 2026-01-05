@@ -5,7 +5,7 @@
         "dockerfilePath": "django-learning/myshop/Dockerfile"
     },
     "deploy": {
-        "startCommand": "gunicorn myshop.wsgi:application --bind 0.0.0.0:$PORT",
+        "startCommand": "/app/entrypoint.sh",
         "healthcheckPath": "/products/",
         "restartPolicyType": "ON_FAILURE"
     }
