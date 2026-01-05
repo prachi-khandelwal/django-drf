@@ -6,7 +6,7 @@
     },
     "deploy": {
         "startCommand": "gunicorn myshop.wsgi:application --bind 0.0.0.0:$PORT",
-        "healthcheckPath": "/api/products/",
+        "healthcheckPath": "/products/",
         "restartPolicyType": "ON_FAILURE"
     }
 }
