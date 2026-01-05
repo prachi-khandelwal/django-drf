@@ -33,13 +33,17 @@ RUN apt-get update && apt-get install -y --fix-missing \
 # ============================================
 # Stage 5: Install Python Dependencies
 # ============================================
-COPY requirements.txt .
+# Railway builds from repo root, so use full path
+# For local builds, ensure you're in django-learning/myshop/ directory
+COPY django-learning/myshop/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # ============================================
 # Stage 6: Copy Project Files
 # ============================================
-COPY . .
+# Railway builds from repo root, so copy from django-learning/myshop/
+# For local builds, ensure you're in django-learning/myshop/ directory
+COPY django-learning/myshop/ .
 
 # ============================================
 # Stage 7: Create Required Directories
