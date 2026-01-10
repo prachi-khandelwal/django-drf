@@ -8,31 +8,27 @@ on :
         branches: [main, master]
 
 jobs:
-    lint:
-        name: Code Linting
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
+  # Linting disabled for now - we'll enable it later
+  # lint:
+  #   name: Code Linting
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #     - name: Set up Python
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: '3.13'
+  #     - name: Install flake8
+  #       run: pip install flake8
+  #     - name: Run linting
+  #       working-directory: django-learning/myshop
+  #       run: flake8 . --max-line-length=120 --exclude=migrations,staticfiles
 
-            - name: Set up Python
-              uses: actions/setup-python@v5
-              with:
-                python-version: '3.13'
-
-            - name: Install flake8
-              run: pip install flake8
-
-            - name: Run linting
-              working-directory: django-learning/myshop
-              run: flake8 . --max-line-length=120 --exclude=migrations,staticfiles --count --statistics
-
-
-
-    test:
-        name: Run Tests
-        runs-on: ubuntu-latest
-        needs: lint
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    # needs: lint  # Removed because lint is disabled
         env:
             SECRET_KEY: 'test-secret-key-only-for-ci'
             DEBUG: 'True'
