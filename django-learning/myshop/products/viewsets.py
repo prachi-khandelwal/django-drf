@@ -7,8 +7,8 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.core.cache import cache
-from django.db.models import Avg, Sum
-from .models import Product
+from django.db.models import Avg, Sum, Count
+from .models import Product, ProductImage
 from .serializers import ProductSerializer, ProductImageSerializer
 from .permissions import IsOwnerOrReadOnly
 from .filters import ProductFilter
@@ -29,7 +29,7 @@ from drf_spectacular.utils import extend_schema, extend_schema_view
         summary="Create a new product",
         description="Create a new product. Requires authentication. You will be set as the owner"
     ),
-    update=extend_schema(
+     update=extend_schema(
         summary="Update a product",
         description="Full update of a product. Only the owner can update. All fields required"
     ),
@@ -193,22 +193,22 @@ class ProductViewSet(viewsets.ModelViewSet):
         cache.delete('product_statistics')
         print("🗑️ Deleted cached product list (product was deleted)")
 
+
     @extend_schema(
-        summary="Product Statistics",
-        description="Get aggregate statistics about all products",
-        responses={
-            200: {
-                'type': 'object',
-                'properties': {
-                    'total_products': {'type': 'integer', 'example': 42},
-                    'average_price': {'type': 'number', 'example': 299.99},
-                    'total_inventory_value': {'type': 'number', 'example': 12599.58},
-                    'out_of_stock_count': {'type': 'integer', 'example': 3},
-                }
+    summary="Product Statistics",
+    description="Get aggregate statistics about all products",
+     responses={
+        200: {
+            'type': 'object',
+            'properties': {
+                'total_products': {'type': 'integer', 'example': 42},
+                'average_price': {'type': 'number', 'example': 299.99},
+                'total_inventory_value': {'type': 'number', 'example': 12599.58},
+                'out_of_stock_count': {'type': 'integer', 'example': 3},
             }
-        },
-        tags=['Statistics']
-    )
+        }
+    },
+    tags=['Statistics'])
     @action(detail=False, methods=['get'])
     def statistics(self, request):
         """
