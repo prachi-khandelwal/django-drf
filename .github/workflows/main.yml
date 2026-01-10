@@ -25,7 +25,7 @@ jobs:
 
             - name: Run linting
               working-directory: django-learning/myshop
-              run: flake8 . --max-line-length=120 --exclude=migrations,staticfiles 
+              run: flake8 . --max-line-length=120 --exclude=migrations,staticfiles --count --statistics
 
 
 

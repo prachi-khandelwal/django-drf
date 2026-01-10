@@ -2,14 +2,14 @@
 
 **Last Updated:** 2025-12-12  
 **Target:** 20 LPA Django Backend Developer Position  
-**Current Progress:** ~98% Complete
+**Current Progress:** ~99% Complete
 
 ---
 
 ## 📊 Progress Overview
 
 ```
-██████████████████████████▓ 98% Complete
+███████████████████████████ 99% Complete
 ```
 
 ---
@@ -227,13 +227,16 @@
 
 ### Tier 2: Production-Ready Skills (~4-6 hours)
 
-#### 26. Deployment ✅ 90%
+#### 26. Deployment ✅ 100%
 - [x] Docker basics (images, containers, commands)
 - [x] Dockerfile creation (multi-stage, ENV, COPY, RUN, CMD)
 - [x] docker-compose setup (multi-container Django + PostgreSQL)
 - [x] Gunicorn configuration (production WSGI server)
 - [x] Nginx configuration (reverse proxy)
-- [ ] Deploy to Heroku/Railway/Render
+- [x] Deploy to Railway (cloud platform)
+- [x] Railway configuration (railway.json, environment variables)
+- [x] Dynamic port handling ($PORT)
+- [x] Auto-migrations on startup (entrypoint.sh)
 - [ ] CI/CD basics
 
 #### 27. Advanced Topics (Optional) ⬜ 0%
@@ -296,6 +299,17 @@
 
 
 ## 🔄 Update Log
+
+- **2025-12-12**: Day 33 - Railway Deployment (Complete)
+  - Created railway.json configuration file
+  - Updated settings.py to handle Railway's dynamic domain (RAILWAY_PUBLIC_DOMAIN)
+  - Updated Dockerfile to use dynamic PORT variable
+  - Created entrypoint.sh for automatic migrations on startup
+  - Successfully deployed Django app to Railway cloud platform
+  - Configured PostgreSQL database on Railway
+  - Set up environment variables securely
+  - Healthcheck passing - app is live and accessible!
+  - Learned Railway deployment workflow and best practices
 
 - **2025-12-12**: Day 32 - Nginx Reverse Proxy (Complete)
   - Created nginx/nginx.conf configuration file
