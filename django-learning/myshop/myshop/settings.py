@@ -34,17 +34,12 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 # Default includes localhost for development
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
 
-# Railway deployment: Auto-add Railway's domain and healthcheck domain
-# Railway automatically sets RAILWAY_PUBLIC_DOMAIN and PORT environment variables
+# Railway deployment: Auto-add Railway's domain
+# Railway automatically sets RAILWAY_PUBLIC_DOMAIN environment variable
 import os
 RAILWAY_PUBLIC_DOMAIN = os.environ.get('RAILWAY_PUBLIC_DOMAIN')
 if RAILWAY_PUBLIC_DOMAIN:
     ALLOWED_HOSTS.append(RAILWAY_PUBLIC_DOMAIN)
-
-# Railway healthcheck uses healthcheck.railway.app
-# Detect Railway by checking for PORT or RAILWAY_ENVIRONMENT variables
-if os.environ.get('PORT') or os.environ.get('RAILWAY_ENVIRONMENT'):
-    ALLOWED_HOSTS.append('healthcheck.railway.app')
 
 
 # =============================================================================
@@ -223,53 +218,31 @@ WSGI_APPLICATION = 'myshop.wsgi.application'
 
 # Flexible database configuration:
 # - Development: Uses SQLite by default (simple, no setup needed)
-# - Production: Uses PostgreSQL (set DB_ENGINE in .env or DATABASE_URL for Railway)
+# - Production: Uses PostgreSQL (set DB_ENGINE in .env)
 
-# Railway provides DATABASE_URL, parse it if available
-from urllib.parse import urlparse
+# Get database engine from environment (defaults to SQLite)
+DB_ENGINE = config('DB_ENGINE', default='django.db.backends.sqlite3')
 
-DATABASE_URL = os.environ.get('DATABASE_URL')
-
-if DATABASE_URL:
-    # Parse DATABASE_URL (Railway format: postgresql://user:password@host:port/dbname)
-    # Handle both postgres:// and postgresql:// schemes
-    if DATABASE_URL.startswith('postgres://'):
-        DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
-    parsed = urlparse(DATABASE_URL)
+if DB_ENGINE == 'django.db.backends.postgresql':
+    # PostgreSQL configuration (production)
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': parsed.path[1:],  # Remove leading '/'
-            'USER': parsed.username,
-            'PASSWORD': parsed.password,
-            'HOST': parsed.hostname,
-            'PORT': parsed.port or '5432',
+            'ENGINE': DB_ENGINE,
+            'NAME': config('DB_NAME', default='myshop_db'),
+            'USER': config('DB_USER', default='myshop_user'),
+            'PASSWORD': config('DB_PASSWORD', default=''),
+            'HOST': config('DB_HOST', default='localhost'),
+            'PORT': config('DB_PORT', default='5432'),
         }
     }
 else:
-    # Fall back to individual DB_* variables or SQLite
-    DB_ENGINE = config('DB_ENGINE', default='django.db.backends.sqlite3')
-    
-    if DB_ENGINE == 'django.db.backends.postgresql':
-        # PostgreSQL configuration (production)
-        DATABASES = {
-            'default': {
-                'ENGINE': DB_ENGINE,
-                'NAME': config('DB_NAME', default='myshop_db'),
-                'USER': config('DB_USER', default='myshop_user'),
-                'PASSWORD': config('DB_PASSWORD', default=''),
-                'HOST': config('DB_HOST', default='localhost'),
-                'PORT': config('DB_PORT', default='5432'),
-            }
+    # SQLite configuration (development)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
         }
-    else:
-        # SQLite configuration (development)
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': BASE_DIR / 'db.sqlite3',
-            }
-        }
+    }
 
 
 # Password validation

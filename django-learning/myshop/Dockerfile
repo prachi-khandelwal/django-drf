@@ -33,17 +33,13 @@ RUN apt-get update && apt-get install -y --fix-missing \
 # ============================================
 # Stage 5: Install Python Dependencies
 # ============================================
-# Railway builds from repo root, so use full path
-# For local builds, ensure you're in django-learning/myshop/ directory
-COPY django-learning/myshop/requirements.txt .
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # ============================================
 # Stage 6: Copy Project Files
 # ============================================
-# Railway builds from repo root, so copy from django-learning/myshop/
-# For local builds, ensure you're in django-learning/myshop/ directory
-COPY django-learning/myshop/ .
+COPY . .
 
 # ============================================
 # Stage 7: Create Required Directories
@@ -52,26 +48,21 @@ COPY django-learning/myshop/ .
 RUN mkdir -p /app/logs
 
 # ============================================
-# Stage 8: Copy and make entrypoint script executable
-# ============================================
-# Copy entrypoint script (will be copied with project files in Stage 6, but make it executable)
-RUN chmod +x /app/entrypoint.sh || true
-
-# ============================================
-# Stage 9: Collect Static Files
+# Stage 8: Collect Static Files
 # ============================================
 RUN python manage.py collectstatic --noinput
 
 # ============================================
-# Stage 10: Expose Port
+# Stage 9: Expose Port
 # ============================================
 # Railway will set PORT dynamically, default to 8000 for local development
 EXPOSE ${PORT:-8000}
 
 # ============================================
-# Stage 11: Run with Entrypoint Script
+# Stage 10: Run with Gunicorn
 # ============================================
+# Use shell form to allow environment variable expansion
 # Railway will override this with startCommand from railway.json
 # But this works for local Docker runs too
-CMD ["/app/entrypoint.sh"]
+CMD gunicorn --bind 0.0.0.0:${PORT:-8000} myshop.wsgi:application
 
